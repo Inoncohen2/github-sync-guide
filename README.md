@@ -37,11 +37,13 @@
    - **Tokens (classic)**
 4. לחצו על:
    - **Generate new token (classic)**
-5. תנו שם לטוקן (למשל `SYNC_TOKEN`)
-6. סמנו הרשאות:
+5. תנו לטוקן שם (למשל `SYNC_TOKEN`)
+6. הגדירו:
+   - Expiration → `No expiration`
+7. סמנו הרשאות:
    - `repo`
    - `workflow`
-7. לחצו Generate והעתיקו את הטוקן
+8. לחצו Generate והעתיקו את הטוקן
 
 > ⚠️ שמרו את הטוקן במקום בטוח — לא תוכלו לראות אותו שוב.
 
