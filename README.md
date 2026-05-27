@@ -1,9 +1,13 @@
 # 🔄 Two-Way Sync: Lovable ↔️ Google AI Studio
 
-![Sync Status](https://img.shields.io/badge/Sync-Automatic-success)
-![GitHub Actions](https://img.shields.io/badge/GitHub-Actions-blue)
+<p align="center">
+  <img src="https://img.shields.io/badge/Sync-Automatic-success" />
+  <img src="https://img.shields.io/badge/GitHub-Actions-blue" />
+</p>
 
-![Preview](./preview.png)
+<p align="center">
+  <img src="./preview.png" width="100%" />
+</p>
 
 פתרון אוטומטי לסנכרון קוד דו-כיווני בין מאגרים נפרדים, שנועד לאפשר פיתוח היברידי עם כלי בינה מלאכותית, תוך חיסכון בעלויות (Credits) ומניעת התנגשויות קוד.
 
