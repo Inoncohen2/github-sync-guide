@@ -1,38 +1,72 @@
-# 🔄 מדריך להגדרת סנכרון דו־כיווני בין שני מאגרי GitHub (ללא לולאות אינסופיות)
+# 🔄 Two-Way Sync: Lovable ↔️ Google AI Studio
 
-## שלב 1: יצירת מפתח הרשאה (Token)
+פתרון אוטומטי לסנכרון קוד דו-כיווני בין מאגרים נפרדים, שנועד לאפשר פיתוח היברידי עם כלי בינה מלאכותית, תוך חיסכון בעלויות (Credits) ומניעת התנגשויות קוד.
 
-1. ב־GitHub לחצו על תמונת הפרופיל שלכם → **Settings**
-2. גללו ל־**Developer settings**
-3. היכנסו ל־**Personal access tokens**
-4. בחרו **Tokens (classic)**
-5. צרו Token חדש
-6. סמנו את ההרשאות:
+---
+
+## 🎯 הבעיה
+
+- **Lovable** הוא כלי מדהים לבניית Frontend ו-UI במהירות, אך צריכת הקרדיטים בו גבוהה מאוד.
+- **Google AI Studio** מספק סביבה מצוינת לפיתוח מורכב של הלוגיקה וה-Backend עם מגבלת שימוש נדיבה בהרבה.
+- **האתגר:** אף אחד מהכלים לא מאפשר התחברות למאגר Git קיים המשותף לשניהם, מה שמונע עבודה רציפה על אותו הפרויקט.
+
+---
+
+## 💡 הפתרון (המעקף)
+
+הקמת **שני מאגרי GitHub נפרדים** (אחד לכל כלי), וחיבורם באמצעות **GitHub Actions** לסנכרון אוטומטי מלא.
+
+### הסקריפטים כוללים מנגנוני הגנה מתקדמים:
+
+- ✅ סנכרון כירורגי עם `rsync`
+- ✅ הגנה על קבצי האוטומציה של כל מאגר
+- ✅ מניעת לולאות סנכרון אינסופיות (Commit Ping-Pong)
+
+---
+
+# ⚙️ הוראות התקנה והגדרה
+
+## שלב 1: יצירת Personal Access Token (PAT)
+
+כדי שהאקשנים יוכלו לדחוף קוד ממאגר אחד לשני, נדרש מפתח הרשאה (Token) של החשבון שלכם.
+
+1. ב-GitHub לחצו על תמונת הפרופיל → **Settings**
+2. בתפריט השמאלי → **Developer settings**
+3. היכנסו ל:
+   - **Personal access tokens**
+   - **Tokens (classic)**
+4. לחצו על:
+   - **Generate new token (classic)**
+5. תנו שם לטוקן (למשל `SYNC_TOKEN`)
+6. סמנו הרשאות:
    - `repo`
    - `workflow`
-7. העתיקו את ה־Token (תצטרכו אותו מיד)
+7. לחצו Generate והעתיקו את הטוקן
+
+> ⚠️ שמרו את הטוקן במקום בטוח — לא תוכלו לראות אותו שוב.
 
 ---
 
-# שלב 2: הוספת ה־Token לשני המאגרים
+## שלב 2: הגדרת Secrets בשני המאגרים
 
-בכל אחד משני המאגרים (Lovable + AI Studio):
+בצעו את הפעולה גם במאגר של Lovable וגם במאגר של AI Studio:
 
-1. היכנסו ל־Repository
-2. עברו ל־**Settings**
-3. היכנסו ל־**Secrets and variables**
-4. לחצו על **Actions**
-5. צרו Secret חדש:
-   - Name:
-     ```txt
-     SYNC_TOKEN
-     ```
-   - Value:
-     הדביקו את ה־Token שיצרתם
+1. Repository → **Settings**
+2. **Secrets and variables**
+3. **Actions**
+4. **New repository secret**
+
+הגדירו:
+
+```txt
+Name: SYNC_TOKEN
+```
+
+והדביקו את הטוקן בשדה Value.
 
 ---
 
-# שלב 3: הסקריפט למאגר הראשון (Lovable)
+# שלב 3: האוטומציה למאגר של Lovable
 
 צרו קובץ:
 
@@ -53,7 +87,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
 
-    # הגנה קריטית מפני לולאת עדכונים אינסופית
+    # הגנה מפני לולאת עדכון אינסופית
     if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'Auto-sync updates')
 
     steps:
@@ -66,7 +100,7 @@ jobs:
       - name: Checkout target repo
         uses: actions/checkout@v4
         with:
-          # 👇 החליפו לשם המשתמש והמאגר של AI Studio
+          # 👇 החליפו לשם המשתמש ושם המאגר של AI Studio
           repository: USERNAME/AI-STUDIO-REPO
           token: ${{ secrets.SYNC_TOKEN }}
           path: target-repo
@@ -97,7 +131,7 @@ jobs:
 
 ---
 
-# שלב 4: הסקריפט למאגר השני (AI Studio)
+# שלב 4: האוטומציה למאגר של AI Studio
 
 צרו קובץ:
 
@@ -118,6 +152,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
 
+    # הגנה מפני לולאת עדכון אינסופית
     if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'Auto-sync updates')
 
     steps:
@@ -130,7 +165,7 @@ jobs:
       - name: Checkout target repo
         uses: actions/checkout@v4
         with:
-          # 👇 החליפו לשם המשתמש והמאגר של Lovable
+          # 👇 החליפו לשם המשתמש ושם המאגר של Lovable
           repository: USERNAME/LOVABLE-REPO
           token: ${{ secrets.SYNC_TOKEN }}
           path: target-repo
@@ -161,6 +196,35 @@ jobs:
 
 ---
 
-# ✅ סיימתם!
+# 🛠️ דגשים לעבודה השוטפת
 
-מעכשיו שני המאגרים יתעדכנו אוטומטית אחד מהשני ברקע — בלי לולאות אינסופיות 🚀
+## 1. עבודה מ-AI Studio ל-Lovable
+
+כאשר דוחפים קוד מ-AI Studio:
+
+1. הקוד עובר ל-GitHub
+2. ה-Action מופעל
+3. המאגר של Lovable מתעדכן אוטומטית
+
+✅ Lovable יודע לבצע Pull אוטומטי ולכן השינויים יופיעו שם לבד.
+
+---
+
+## 2. עבודה מ-Lovable ל-AI Studio
+
+כאשר Lovable דוחף שינויים:
+
+1. ה-Action מעדכן את המאגר של AI Studio
+2. אבל AI Studio לא מבצע Pull אוטומטי לקוד שבאתר
+
+לכן:
+
+- פתחו את טאב GitHub בתוך AI Studio
+- שם יוצגו ההבדלים
+- משכו / העתיקו את השינויים ידנית
+
+---
+
+# ✅ סיימתם
+
+מעכשיו שני המאגרים מסונכרנים אוטומטית אחד עם השני 🚀
